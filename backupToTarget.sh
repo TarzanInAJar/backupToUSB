@@ -1,5 +1,4 @@
 #!/bin/bash
-BACKUP_SOURCES="/data"
 curDir=`dirname "$0"`
 
 #//TODO implement '--dry-run' option
@@ -26,7 +25,7 @@ mkdir -p "${backupPath}"
 backupList=()
 
 #check that backup sources are valid
-for source in ${BACKUP_SOURCES}; do
+while IFS='' read -r source || [[ -n "$source" ]]; do
   source=`realpath $source`
   
   #if source exists, make sure it can be read
@@ -58,10 +57,10 @@ for source in ${BACKUP_SOURCES}; do
       fi
     fi
   fi 
-done
+done < "$curDir/sources.config"
 
 #begin backup
-for source in ${backupList}; do
+for source in ${backupList[@]}; do
   echo -n "Backing up '$source' to '${backupPath}${source}'..."
 
   rsync -qa --delete "$source" "${backupPath}" 2> "${curDir}/errors.txt"
