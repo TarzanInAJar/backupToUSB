@@ -1,5 +1,6 @@
 #!/bin/bash
 BACKUP_SOURCES="/data"
+curDir=`dirname "$0"`
 
 #//TODO implement '--dry-run' option
 
@@ -10,12 +11,11 @@ if [ $# -eq 0 ]; then
 fi
 
 #check that backup target exists
-usbDrive="$1"
-drivePath="/run/media/ryan/${usbDrive}"
+drivePath=`realpath $1`
 
 if [ ! -d "$drivePath" ];
 then
-  echo "USB Device '${usbDrive}' is not mounted!"
+  echo "Target directory '${usbDrive}' is not available!"
   exit 1
 fi
 
@@ -27,7 +27,8 @@ backupList=()
 
 #check that backup sources are valid
 for source in ${BACKUP_SOURCES}; do
-
+  source=`realpath $source`
+  
   #if source exists, make sure it can be read
   if [ -e "$source" ]; then
     if [ -r "$source" ]; then
@@ -63,7 +64,7 @@ done
 for source in ${backupList}; do
   echo -n "Backing up '$source' to '${backupPath}${source}'..."
 
-  rsync -qa --delete "$source" "${backupPath}" 2> ./errors.txt
+  rsync -qa --delete "$source" "${backupPath}" 2> "${curDir}/errors.txt"
   if [ $? -eq 0 ]; then
     echo "Done."
   else
