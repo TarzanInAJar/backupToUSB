@@ -19,18 +19,23 @@ if [ -z $ALIAS ]; then
 fi
 
 
-if [ ! -d $TARGET_DIR ]; then
-  echo -n "Giving a chance for drives to mount..."
-  sleep 5
-  echo "done"
-fi
+while : ; do
 
-if [ -d $TARGET_DIR ]; then
-  echo "$ALIAS detected!"
-else
-  echo "$ALIAS NOT detected. Is it plugged in?"
-  promptBeforeExit 1 
-fi
+  if [ ! -d $TARGET_DIR ]; then
+    echo -n "Giving a chance for drives to mount..."
+    sleep 5
+    echo "done"
+  fi
+
+  if [ -d $TARGET_DIR ]; then
+    echo "$ALIAS detected!"
+    break
+  else
+    read -p "$ALIAS NOT detected. Try again? [y/n]" -n 1 -r -s
+    echo
+    [[ $REPLY =~ ^[Yy]$ ]] || exit 1
+  fi
+done
 
 read -p "Would you like to run your $ALIAS backup? [y/n]:" -n 1 -r
 echo
